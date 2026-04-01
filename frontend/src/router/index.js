@@ -67,6 +67,32 @@ const router = createRouter({
       name: 'admin-listings',
       component: () => import('@/views/AdminManageListings.vue'),
       meta: { requiresAuth: true, role: 'admin' }
+    },
+
+    // Employer routes (Person 5)
+    {
+      path: '/employer/dashboard',
+      name: 'employer-dashboard',
+      component: () => import('@/views/employer/EmployerDashboard.vue'),
+      meta: { requiresAuth: true, role: 'employer' }
+    },
+    {
+      path: '/employer/post-job',
+      name: 'post-job',
+      component: () => import('@/views/employer/PostJobPage.vue'),
+      meta: { requiresAuth: true, role: 'employer' }
+    },
+    {
+      path: '/employer/edit-job/:id',
+      name: 'edit-job',
+      component: () => import('@/views/employer/EditJobPage.vue'),
+      meta: { requiresAuth: true, role: 'employer' }
+    },
+    {
+      path: '/employer/applicants/:listing_id',
+      name: 'view-applicants',
+      component: () => import('@/views/employer/ViewApplicantsPage.vue'),
+      meta: { requiresAuth: true, role: 'employer' }
     }
   ]
 })
