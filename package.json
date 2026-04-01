@@ -13,7 +13,10 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@supabase/supabase-js": "^2.101.1",
+=======
+>>>>>>> 616577d24a6c82b9aa9023d080fd48b75ed7c126
     "pinia": "^3.0.4",
     "vue": "^3.5.31",
     "vue-router": "^5.0.4"
