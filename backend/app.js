@@ -18,7 +18,7 @@ app.use('/api/auth', require('./routes/userRoutes'))
 
 // Test DB connection
 db.query('SELECT 1').then(() => {
-  console.log('✅ Database connected successfully!')
+  console.log('Database connected successfully!')
 }).catch((err) => {
   console.error('❌ Database connection failed:', err.message)
 })
