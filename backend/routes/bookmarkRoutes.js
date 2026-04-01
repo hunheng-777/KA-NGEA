@@ -1,15 +1,17 @@
-import express from 'express';
-import * as BookmarkController from '../controllers/bookmarkController.js';
+const express = require('express');
+const BookmarkController = require('../controllers/bookmarkController');
+const { protect } = require('../middleware/authMiddleware');
+const { restrictTo } = require('../middleware/roleMiddleware');
 
 const router = express.Router();
 
-// Get all bookmarks for a student
-router.get('/:student_id', BookmarkController.getBookmarksByStudent);
+// Student - get all their bookmarks
+router.get('/:student_id', protect, restrictTo('student'), BookmarkController.getBookmarksByStudent);
 
-// Add a bookmark
-router.post('/', BookmarkController.createBookmark);
+// Student - add a bookmark
+router.post('/', protect, restrictTo('student'), BookmarkController.createBookmark);
 
-// Remove a bookmark
-router.delete('/', BookmarkController.deleteBookmark);
+// Student - remove a bookmark
+router.delete('/', protect, restrictTo('student'), BookmarkController.deleteBookmark);
 
-export default router;
+module.exports = router;

@@ -1,15 +1,17 @@
-import express from 'express';
-import * as ListingController from '../controllers/listingController.js';
+const express = require('express');
+const ListingController = require('../controllers/listingController');
+const { protect } = require('../middleware/authMiddleware');
+const { restrictTo } = require('../middleware/roleMiddleware');
 
 const router = express.Router();
 
-// Public routes - anyone can access
+// Public routes
 router.get('/', ListingController.getAllListings);
 router.get('/:id', ListingController.getListingById);
 
 // Employer only routes
-router.post('/', ListingController.createListing);
-router.put('/:id', ListingController.updateListing);
-router.delete('/:id', ListingController.deleteListing);
+router.post('/', protect, restrictTo('employer'), ListingController.createListing);
+router.put('/:id', protect, restrictTo('employer'), ListingController.updateListing);
+router.delete('/:id', protect, restrictTo('employer', 'admin'), ListingController.deleteListing);
 
-export default router;
+module.exports = router;

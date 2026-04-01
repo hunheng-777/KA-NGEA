@@ -1,7 +1,6 @@
-import * as BookmarkModel from '../models/bookmarkModel.js';
+const BookmarkModel = require('../models/bookmarkModel');
 
-// Get all bookmarks for a student
-export const getBookmarksByStudent = async (req, res) => {
+const getBookmarksByStudent = async (req, res) => {
     try {
         const bookmarks = await BookmarkModel.getBookmarksByStudent(req.params.student_id);
         res.json(bookmarks);
@@ -10,8 +9,7 @@ export const getBookmarksByStudent = async (req, res) => {
     }
 };
 
-// Add a bookmark
-export const createBookmark = async (req, res) => {
+const createBookmark = async (req, res) => {
     try {
         const student_id = req.user.id;
         const { listing_id } = req.body;
@@ -26,8 +24,7 @@ export const createBookmark = async (req, res) => {
     }
 };
 
-// Remove a bookmark
-export const deleteBookmark = async (req, res) => {
+const deleteBookmark = async (req, res) => {
     try {
         const student_id = req.user.id;
         const { listing_id } = req.body;
@@ -37,3 +34,5 @@ export const deleteBookmark = async (req, res) => {
         res.status(500).json({ error: 'Failed to remove bookmark' });
     }
 };
+
+module.exports = { getBookmarksByStudent, createBookmark, deleteBookmark };

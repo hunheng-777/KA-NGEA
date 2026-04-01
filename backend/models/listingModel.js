@@ -1,37 +1,34 @@
-import pool from '../config/db.js';
+const pool = require('../config/db');
 
-// Get all listings
-export const getAllListings = async () => {
+const getAllListings = async () => {
     const [rows] = await pool.query('SELECT * FROM listings ORDER BY created_at DESC');
     return rows;
 };
 
-// Get one listing by ID
-export const getListingById = async (id) => {
+const getListingById = async (id) => {
     const [rows] = await pool.query('SELECT * FROM listings WHERE id = ?', [id]);
     return rows[0];
 };
 
-// Create a new listing
-export const createListing = async (data) => {
-    const { employer_id, title, company_name, type, location, salary, description, requirements, deadline } = data;
+const createListing = async (data) => {
+    const { employer_id, title, company, type, location, description, requirements, deadline } = data;
     const [result] = await pool.query(
-        'INSERT INTO listings (employer_id, title, company_name, type, location, salary, description, requirements, deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [employer_id, title, company_name, type, location, salary, description, requirements, deadline]
+        'INSERT INTO listings (employer_id, title, company, type, location, description, requirements, deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [employer_id, title, company, type, location, description, requirements, deadline]
     );
     return result.insertId;
 };
 
-// Update a listing
-export const updateListing = async (id, data) => {
-    const { title, company_name, type, location, salary, description, requirements, deadline } = data;
+const updateListing = async (id, data) => {
+    const { title, company, type, location, description, requirements, deadline, is_active } = data;
     await pool.query(
-        'UPDATE listings SET title=?, company_name=?, type=?, location=?, salary=?, description=?, requirements=?, deadline=? WHERE id=?',
-        [title, company_name, type, location, salary, description, requirements, deadline, id]
+        'UPDATE listings SET title=?, company=?, type=?, location=?, description=?, requirements=?, deadline=?, is_active=? WHERE id=?',
+        [title, company, type, location, description, requirements, deadline, is_active, id]
     );
 };
 
-// Delete a listing
-export const deleteListing = async (id) => {
+const deleteListing = async (id) => {
     await pool.query('DELETE FROM listings WHERE id = ?', [id]);
 };
+
+module.exports = { getAllListings, getListingById, createListing, updateListing, deleteListing };

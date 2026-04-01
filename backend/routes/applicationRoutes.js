@@ -1,21 +1,25 @@
-import express from 'express';
-import * as ApplicationController from '../controllers/applicationController.js';
+const express = require('express');
+const ApplicationController = require('../controllers/applicationController');
+const { protect } = require('../middleware/authMiddleware');
+const { restrictTo } = require('../middleware/roleMiddleware');
 
 const router = express.Router();
 
-// Get all applications for a specific listing (employer)
-router.get('/listing/:listing_id', ApplicationController.getApplicationsByListing);
+// Employer - see who applied to their listing
+router.get('/listing/:listing_id', protect, restrictTo('employer'), ApplicationController.getApplicationsByListing);
 
-// Get all applications by a specific student
-router.get('/student/:student_id', ApplicationController.getApplicationsByStudent);
+// Student - see their own applications
+router.get('/student/:student_id', protect, restrictTo('student'), ApplicationController.getApplicationsByStudent);
 
-// Submit an application (student)
-router.post('/', ApplicationController.createApplication);
+// Student - apply to a listing
+router.post('/', protect, restrictTo('student'), ApplicationController.createApplication);
 
-// Update application status (employer)
-router.put('/:id', ApplicationController.updateApplicationStatus);
+// Employer - update application status
+router.put('/:id', protect, restrictTo('employer'), ApplicationController.updateApplicationStatus);
 
-// Withdraw an application (student)
-router.delete('/:id', ApplicationController.deleteApplication);
+// Student - withdraw an application
+router.delete('/:id', protect, restrictTo('student'), ApplicationController.deleteApplication);
 
-export default router;
+module.exports = router;
+
+

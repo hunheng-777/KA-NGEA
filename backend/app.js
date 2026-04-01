@@ -10,11 +10,14 @@ app.use(express.json())
 
 // Test route
 app.get('/', (req, res) => {
-  res.json({ message: 'KaNgea API is running!' })
+  res.json({ message: 'KA-NGEA API is running!' })
 })
 
 // Routes
 app.use('/api/auth', require('./routes/userRoutes'))
+app.use('/api/listings', require('./routes/listingRoutes'))
+app.use('/api/applications', require('./routes/applicationRoutes'))
+app.use('/api/bookmarks', require('./routes/bookmarkRoutes'))
 
 // Test DB connection
 db.query('SELECT 1').then(() => {
