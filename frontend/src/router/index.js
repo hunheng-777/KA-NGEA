@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
 import { useAuthStore } from '@/stores/auth'
- 
 
 const router = createRouter({
   history: createWebHistory(),
@@ -9,48 +7,70 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('@/views/HomePage.vue')
+      component: () => import('@/views/public/HomePage.vue')
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/views/Login.vue'),
+      component: () => import('@/views/public/LoginPage.vue'),
       meta: { guestOnly: true }
     },
     {
       path: '/register',
       name: 'register',
-      component: () => import('@/views/Register.vue'),
+      component: () => import('@/views/public/RegisterPage.vue'),
       meta: { guestOnly: true }
     },
     {
-      path: '/forgot-password',
-      name: 'forgot-password',
-      component: () => import('@/views/ForgotPassword.vue'),
-      meta: { guestOnly: true }
+      path: '/browse',
+      name: 'browse',
+      component: () => import('@/views/public/Browse.vue')
     },
     {
-      path: '/reset-password',
-      name: 'reset-password',
-      component: () => import('@/views/ResetPassword.vue'),
-      meta: { guestOnly: true }
+      path: '/student/dashboard',
+      name: 'student-dashboard',
+      component: () => import('@/views/student/StudentDashboard.vue'),
+      meta: { requiresAuth: true, role: 'student' }
+    },
+    {
+      path: '/student/bookmarks',
+      name: 'student-bookmarks',
+      component: () => import('@/views/student/BookmarksPage.vue'),
+      meta: { requiresAuth: true, role: 'student' }
+    },
+    {
+      path: '/student/applications',
+      name: 'student-applications',
+      component: () => import('@/views/student/MyApplication.vue'),
+      meta: { requiresAuth: true, role: 'student' }
     },
     {
       path: '/student/profile',
       name: 'student-profile',
-      component: () => import('@/views/Profile.vue'),
+      component: () => import('@/views/student/MyProfilePage.vue'),
       meta: { requiresAuth: true, role: 'student' }
     },
     {
-      path: '/employer/profile',
-      name: 'employer-profile',
-      component: () => import('@/views/Profile.vue'),
-      meta: { requiresAuth: true, role: 'employer' }
+      path: '/admin',
+      name: 'admin-dashboard',
+      component: () => import('@/views/AdminDashboard.vue'),
+      meta: { requiresAuth: true, role: 'admin' }
+    },
+    {
+      path: '/admin/users',
+      name: 'admin-users',
+      component: () => import('@/views/AdminManageUsers.vue'),
+      meta: { requiresAuth: true, role: 'admin' }
+    },
+    {
+      path: '/admin/listings',
+      name: 'admin-listings',
+      component: () => import('@/views/AdminManageListings.vue'),
+      meta: { requiresAuth: true, role: 'admin' }
     }
   ]
 })
 
-// Navigation guard
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const isLoggedIn = authStore.isLoggedIn
@@ -64,7 +84,7 @@ router.beforeEach((to, from, next) => {
     if (authStore.role !== to.meta.role) {
       if (authStore.role === 'student') next('/student/dashboard')
       else if (authStore.role === 'employer') next('/employer/dashboard')
-      else if (authStore.role === 'admin') next('/admin/dashboard')
+      else if (authStore.role === 'admin') next('/admin')
       else next('/')
       return
     }
@@ -73,7 +93,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.guestOnly && isLoggedIn) {
     if (authStore.role === 'student') next('/student/dashboard')
     else if (authStore.role === 'employer') next('/employer/dashboard')
-    else if (authStore.role === 'admin') next('/admin/dashboard')
+    else if (authStore.role === 'admin') next('/admin')
     else next('/')
     return
   }
