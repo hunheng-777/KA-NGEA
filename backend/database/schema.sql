@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
   role ENUM('student', 'employer', 'admin') DEFAULT 'student',
   avatar_url VARCHAR(255),
   bio TEXT,
+  reset_token VARCHAR(255),
+  reset_token_expires DATETIME,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -27,7 +29,7 @@ CREATE TABLE IF NOT EXISTS listings (
   deadline DATE,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (employer_id) REFERENCES users(id)
+  FOREIGN KEY (employer_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Applications table
@@ -37,9 +39,10 @@ CREATE TABLE IF NOT EXISTS applications (
   listing_id INT,
   status ENUM('pending', 'reviewed', 'accepted', 'rejected') DEFAULT 'pending',
   cover_letter TEXT,
+  resume_url VARCHAR(255),
   applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (student_id) REFERENCES users(id),
-  FOREIGN KEY (listing_id) REFERENCES listings(id)
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
 );
 
 -- Bookmarks table
@@ -49,6 +52,6 @@ CREATE TABLE IF NOT EXISTS bookmarks (
   listing_id INT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY unique_bookmark (student_id, listing_id),
-  FOREIGN KEY (student_id) REFERENCES users(id),
-  FOREIGN KEY (listing_id) REFERENCES listings(id)
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
 );
