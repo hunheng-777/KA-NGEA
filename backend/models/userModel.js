@@ -50,6 +50,33 @@ const User = {
       'DELETE FROM users WHERE id = ?', [id]
     )
     return result
+  },
+
+  // Save reset token and expiry
+  saveResetToken: async (id, token, expires) => {
+    const [result] = await db.query(
+      'UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?',
+      [token, expires, id]
+    )
+    return result
+  },
+
+  // Find user by reset token (only if token not expired)
+  findByResetToken: async (token) => {
+    const [rows] = await db.query(
+      'SELECT * FROM users WHERE reset_token = ? AND reset_token_expires > NOW()',
+      [token]
+    )
+    return rows[0]
+  },
+
+  // Update password and clear reset token
+  updatePassword: async (id, hashedPassword) => {
+    const [result] = await db.query(
+      'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?',
+      [hashedPassword, id]
+    )
+    return result
   }
 }
 
