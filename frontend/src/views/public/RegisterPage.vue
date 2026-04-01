@@ -189,12 +189,10 @@ const stats = [
 function checkStrength() {
   const password = form.password
   let score = 0
-
   if (password.length >= 8) score++
   if (/[A-Z]/.test(password)) score++
   if (/[0-9]/.test(password)) score++
   if (/[^A-Za-z0-9]/.test(password)) score++
-
   passwordScore.value = score
 }
 
@@ -211,7 +209,6 @@ const strengthLabel = computed(() => {
 })
 
 function validate() {
-  // Clear all errors
   Object.keys(errors).forEach(key => errors[key] = '')
   let isValid = true
 
@@ -219,7 +216,6 @@ function validate() {
     errors.fullName = 'Full name is required'
     isValid = false
   }
-
   if (!form.email) {
     errors.email = 'Email is required'
     isValid = false
@@ -227,7 +223,6 @@ function validate() {
     errors.email = 'Enter a valid email'
     isValid = false
   }
-
   if (!form.password) {
     errors.password = 'Password is required'
     isValid = false
@@ -235,7 +230,6 @@ function validate() {
     errors.password = 'Password must be at least 8 characters'
     isValid = false
   }
-
   if (!form.agreed) {
     errors.agreed = 'You must agree to the terms'
     isValid = false
@@ -252,15 +246,14 @@ async function handleRegister() {
 
   try {
     await authStore.register({
+      full_name: form.fullName,   // ✅ FIXED — matches backend expectation
       email: form.email,
       password: form.password,
-      fullName: form.fullName,
       role: form.role,
       institution: form.institution,
       company: form.company
     })
 
-    // Redirect based on role
     if (form.role === 'employer') {
       router.push('/employer/dashboard')
     } else if (form.role === 'admin') {

@@ -152,7 +152,7 @@ const activity = ref([])
 
 onMounted(async () => {
   try {
-    const res = await api.get('/api/admin/stats')
+   const res = await api.get('/api/admin/stats')
     stats.value = res.data.stats
     activity.value = res.data.activity
   } catch (err) {

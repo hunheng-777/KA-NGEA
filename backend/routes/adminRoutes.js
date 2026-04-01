@@ -1,12 +1,12 @@
 const express = require('express')
-const { getStats, getAllUsers, deleteUser, getAllListings, deleteListing } = require('../controllers/admin.controller.js')
-const { verifyToken } = require('../middleware/auth.middleware.js')
-const { restrictTo } = require('../middleware/role.middleware.js')
+const { getStats, getAllUsers, deleteUser, getAllListings, deleteListing } = require('../controllers/adminController.js')
+const { protect } = require('../middleware/authMiddleware.js')
+const { restrictTo } = require('../middleware/roleMiddleware.js')
 
 const router = express.Router()
 
-router.use(verifyToken)
-router.use(requireRole('admin'))
+router.use(protect)
+router.use(restrictTo('admin'))
 
 router.get('/stats',           getStats)
 router.get('/users',           getAllUsers)
