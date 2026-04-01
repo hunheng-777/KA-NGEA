@@ -6,9 +6,10 @@ const User = require('../models/userModel')
 // REGISTER
 exports.register = async (req, res) => {
   try {
-    const { full_name, email, password, role } = req.body
+    const { full_name, fullName, email, password, role } = req.body
+    const name = full_name || fullName
 
-    if (!full_name || !email || !password) {
+    if (!name || !email || !password) {
       return res.status(400).json({ error: 'Please fill in all fields' })
     }
 
@@ -21,7 +22,7 @@ exports.register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
-    await User.create(full_name, email, hashedPassword, userRole)
+    await User.create(name, email, hashedPassword, userRole)
 
     res.status(201).json({ message: 'Registered successfully' })
   } catch (err) {
@@ -98,12 +99,10 @@ exports.forgotPassword = async (req, res) => {
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex')
-    const expires = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+    const expires = new Date(Date.now() + 60 * 60 * 1000)
 
     await User.saveResetToken(user.id, resetToken, expires)
 
-    // In real project you would email this token
-    // For now just return it for testing
     res.json({
       message: 'Reset token generated',
       resetToken
