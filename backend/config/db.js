@@ -1,10 +1,12 @@
-import { createPool } from "mysql2";
+const mysql2 = require('mysql2')
+require('dotenv').config()
 
-const pool = createPool({
-    host: process.env.HOST || 'localhost',
-    user: process.env.USER || 'root',
-    password: process.env.PASSWORD || 'root',
-    database: process.env.DATABASE || 'ka_ngea',
-    port: process.env.PORT_DB || 3307
-});
-export default pool.promise();
+const pool = mysql2.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || 'root',
+  database: process.env.DB_NAME || 'cybercareer',
+  port: process.env.PORT_DB || 3306
+})
+
+module.exports = pool.promise()

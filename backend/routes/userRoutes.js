@@ -1,27 +1,25 @@
-import {Router} from 'express';
-const router = Router();
-import { getCreateUser,createUser,login,loginUser,listUser,findUser } from '../controllers/userController.js';    
-import { isAuth, isGuest } from '../middleware/authMiddleware.js';
+const express = require('express')
+const router = express.Router()
+const { register, login, getMe } = require('../controllers/userController')
+const { protect } = require('../middleware/authMiddleware')
+const { restrictTo } = require('../middleware/roleMiddleware')
 
-router.get('/', (req, res) => {
-    res.render('index', {
-        layout: 'templates/mains',
-        title: 'Home'
-    });
-});
-router.get('/create', isAuth ,getCreateUser);
-router.post('/create', createUser);
+// Public routes
+router.post('/register', register)
+router.post('/login', login)
 
-// Public / Guest Only
-router.get('/login',isGuest, login);
-router.post('/login',isGuest, loginUser);
+// Protected routes
+router.get('/me', protect, getMe)
 
-// Protected / Auth Only
-router.get('/dashboard', isAuth, listUser);
-router.post('/dashboard', isAuth,  findUser);
-// // Logout
-router.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/login');
-});
-export default router;
+// Role test routes
+router.get('/student', protect, restrictTo('student'), (req, res) => {
+  res.json({ message: 'Welcome Student!' })
+})
+router.get('/employer', protect, restrictTo('employer'), (req, res) => {
+  res.json({ message: 'Welcome Employer!' })
+})
+router.get('/admin', protect, restrictTo('admin'), (req, res) => {
+  res.json({ message: 'Welcome Admin!' })
+})
+
+module.exports = router

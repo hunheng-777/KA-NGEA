@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CyberCareer API Test</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 40px auto; padding: 20px; }
+    input, select { width: 100%; padding: 8px; margin: 5px 0 10px; box-sizing: border-box; }
+    button { padding: 10px 20px; background: #4f46e5; color: white; border: none; cursor: pointer; border-radius: 5px; }
+    pre { background: #f1f1f1; padding: 15px; border-radius: 5px; }
+    h2 { color: #4f46e5; }
+  </style>
+</head>
+<body>
+
+  <h1>CyberCareer API Test</h1>
+
+  <!-- REGISTER -->
+  <h2>Register</h2>
+  <input type="text" id="reg_name" placeholder="Full Name" />
+  <input type="email" id="reg_email" placeholder="Email" />
+  <input type="password" id="reg_password" placeholder="Password" />
+  <select id="reg_role">
+    <option value="student">Student</option>
+    <option value="employer">Employer</option>
+    <option value="admin">Admin</option>
+  </select>
+  <br><br>
+  <button onclick="register()">Register</button>
+  <pre id="reg_result"></pre>
+
+  <!-- LOGIN -->
+  <h2>Login</h2>
+  <input type="email" id="login_email" placeholder="Email" />
+  <input type="password" id="login_password" placeholder="Password" />
+  <button onclick="login()">Login</button>
+  <pre id="login_result"></pre>
+
+  <!-- GET ME -->
+  <h2>Get Current User</h2>
+  <button onclick="getMe()">Get Me</button>
+  <pre id="me_result"></pre>
+
+  <script>
+    const API = 'http://localhost:3000/api/auth'
+    let token = ''
+
+    async function register() {
+      const res = await fetch(`${API}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: document.getElementById('reg_name').value,
+          email: document.getElementById('reg_email').value,
+          password: document.getElementById('reg_password').value,
+          role: document.getElementById('reg_role').value
+        })
+      })
+      const data = await res.json()
+      document.getElementById('reg_result').textContent = JSON.stringify(data, null, 2)
+    }
+
+    async function login() {
+      const res = await fetch(`${API}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('login_email').value,
+          password: document.getElementById('login_password').value
+        })
+      })
+      const data = await res.json()
+      if (data.token) token = data.token
+      document.getElementById('login_result').textContent = JSON.stringify(data, null, 2)
+    }
+
+    async function getMe() {
+      const res = await fetch(`${API}/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const data = await res.json()
+      document.getElementById('me_result').textContent = JSON.stringify(data, null, 2)
+    }
+  </script>
+
+</body>
+</html>

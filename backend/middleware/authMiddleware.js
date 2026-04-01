@@ -1,11 +1,20 @@
-// Protect private pages
-export const isAuth = (req, res, next) => {
-    if (req.session.userId) return next();
-    res.redirect('/login');
-};
+const jwt = require('jsonwebtoken')
 
-// Redirect logged-in users away from Login/Register
-export const isGuest = (req, res, next) => {
-    if (!req.session.userId) return next();
-    res.redirect('/dashboard');
-};
+// Check if user is logged in
+exports.protect = (req, res, next) => {
+  const authHeader = req.headers.authorization
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Not logged in' })
+  }
+
+  const token = authHeader.split(' ')[1]
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    req.user = decoded
+    next()
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid token' })
+  }
+}

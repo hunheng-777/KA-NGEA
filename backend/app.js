@@ -1,39 +1,29 @@
-import 'dotenv/config';
-import express from 'express';
-import userRoutes from './routes/userRoutes.js';
-import apiRoutes from './routes/apiRoutes.js';
-import expressLayouts from 'express-ejs-layouts';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-import { sessionConfig } from './config/sessionConfig.js';
-import listingRoutes from './routes/listingRoutes.js';
-import applicationRoutes from './routes/applicationRoutes.js';
-import bookmarkRoutes from './routes/bookmarkRoutes.js';
+const express = require('express')
+const cors = require('cors')
+require('dotenv').config()
+const db = require('./config/db')
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const app = express();
+const app = express()
 
-app.use(sessionConfig);
+app.use(cors())
+app.use(express.json())
 
-app.set('view engine', 'ejs');
-app.set('views', join(__dirname, 'views'));
-app.use(expressLayouts);
+// Test route
+app.get('/', (req, res) => {
+  res.json({ message: 'CyberCareer API is running!' })
+})
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+// Routes
+app.use('/api/auth', require('./routes/userRoutes'))
 
-app.set('layout', 'templates/mains');
+// Test DB connection
+db.query('SELECT 1').then(() => {
+  console.log('✅ Database connected successfully!')
+}).catch((err) => {
+  console.error('❌ Database connection failed:', err.message)
+})
 
-app.use('/api/v1', apiRoutes);
-app.use('/api/listings', listingRoutes);
-app.use('/api/applications', applicationRoutes);
-app.use('/api/bookmarks', bookmarkRoutes);
-app.use('/', userRoutes);
-
-const PORT = process.env.PORT_APP || 4000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
-
-
-
-
-
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`)
+})
