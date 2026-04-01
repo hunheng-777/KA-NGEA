@@ -15,6 +15,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/auth', require('./routes/userRoutes'))
+app.use('/api/users', require('./routes/usersRoutes'))
 app.use('/api/listings', require('./routes/listingRoutes'))
 app.use('/api/applications', require('./routes/applicationRoutes'))
 app.use('/api/bookmarks', require('./routes/bookmarkRoutes'))
