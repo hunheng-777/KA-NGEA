@@ -10,7 +10,7 @@ app.use(express.json())
 
 // Test route
 app.get('/', (req, res) => {
-  res.json({ message: 'CyberCareer API is running!' })
+  res.json({ message: 'KaNgea API is running!' })
 })
 
 // Routes
@@ -20,7 +20,7 @@ app.use('/api/auth', require('./routes/userRoutes'))
 db.query('SELECT 1').then(() => {
   console.log('Database connected successfully!')
 }).catch((err) => {
-  console.error('❌ Database connection failed:', err.message)
+  console.error('Database connection failed:', err.message)
 })
 
 const PORT = process.env.PORT || 3000
