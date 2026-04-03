@@ -1,4 +1,4 @@
-<template>
+[4/2/2026 9:22 AM] Farit: <template>
   <nav class="sticky top-0 z-[100] h-[60px] bg-[rgba(4,8,15,0.95)] border-b border-[#1a2740] backdrop-blur-xl flex items-center px-8 gap-6">
 
     <!-- Logo -->
@@ -33,6 +33,7 @@
             <span class="text-[10px] font-mono text-[#3d5a7a] uppercase tracking-wider">{{ authStore.role }}</span>
           </div>
           <span class="text-[10px] text-[#3d5a7a] transition-transform duration-200" :class="{ 'rotate-180': dropdownOpen }">▾</span>
+[4/2/2026 9:22 AM] Farit: 
 
           <Transition name="dropdown">
             <div v-if="dropdownOpen" @click.stop class="absolute top-[calc(100%+10px)] right-0 bg-[#090f1a] border border-[#233352] rounded-[14px] min-w-[220px] overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.6)] z-[200]">
@@ -72,6 +73,7 @@
       <span class="block w-[22px] h-0.5 bg-[#7a9bbf] rounded-sm"></span>
       <span class="block w-[22px] h-0.5 bg-[#7a9bbf] rounded-sm"></span>
     </button>
+[4/2/2026 9:22 AM] Farit: 
 
     <!-- Mobile Menu -->
     <Transition name="slide-down">
@@ -117,17 +119,20 @@ const navLinks = [
   { to: '/browse?type=intern', label: 'Internships' },
   { to: '/browse?type=scholar', label: 'Scholarships' },
 ]
+
 const studentLinks = [
   { to: '/student/dashboard', label: 'Dashboard' },
   { to: '/student/applications', label: 'My Applications' },
   { to: '/student/bookmarks', label: 'Bookmarks' },
   { to: '/student/profile', label: 'My Profile' },
 ]
+
 const employerLinks = [
   { to: '/employer/dashboard', label: 'Dashboard' },
   { to: '/employer/post-job', label: 'Post a Job' },
   { to: '/employer/applicants', label: 'View Applicants' },
 ]
+
 const adminLinks = [
   { to: '/admin/dashboard', label: 'Admin Dashboard' },
   { to: '/admin/users', label: 'Manage Users' },
@@ -145,6 +150,7 @@ async function handleLogout() {
   router.push('/login')
 }
 </script>
+[4/2/2026 9:22 AM] Farit: 
 
 <style scoped>
 .dropdown-enter-active, .dropdown-leave-active { transition: all .2s ease; }

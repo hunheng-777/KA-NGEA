@@ -24,5 +24,11 @@ export const listingsService = {
   async getCategoryCounts() {
     const response = await api.get('/listings/counts')
     return response.data
+  },
+
+  // Add this function for stats
+  async getStats() {
+    const response = await api.get('/stats')
+    return response.data
   }
 }

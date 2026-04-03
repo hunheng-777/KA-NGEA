@@ -26,6 +26,7 @@ const router = createRouter({
       name: 'browse',
       component: () => import('@/views/public/Browse.vue')
     },
+    
     {
       path: '/student/dashboard',
       name: 'student-dashboard',
@@ -38,6 +39,7 @@ const router = createRouter({
       component: () => import('@/views/student/BookmarksPage.vue'),
       meta: { requiresAuth: true, role: 'student' }
     },
+    
     {
       path: '/student/applications',
       name: 'student-applications',
@@ -93,7 +95,8 @@ const router = createRouter({
       name: 'view-applicants',
       component: () => import('@/views/employer/ViewApplicantsPage.vue'),
       meta: { requiresAuth: true, role: 'employer' }
-    }
+    },
+    { path: '/job/:id', name: 'job-detail', component: () => import('@/views/public/JobDetailPage.vue') },
   ]
 })
 

@@ -3,7 +3,7 @@
     <div class="max-w-5xl mx-auto">
 
       <!-- Header -->
-      <h1 class="text-3xl font-bold mb-2">Browse Jobs </h1>
+      <h1 class="text-3xl font-bold mb-2">Browse Jobs</h1>
       <p class="text-gray-400 mb-6">Find cybersecurity jobs, internships & scholarships</p>
 
       <!-- Search -->
@@ -29,7 +29,6 @@
 
       <!-- Loading -->
       <div v-if="loading" class="text-center py-20 text-gray-500">
-        <p class="text-4xl mb-3"></p>
         <p>Loading jobs...</p>
       </div>
 
@@ -49,7 +48,6 @@
 
         <!-- Empty -->
         <div v-else class="text-center py-20 text-gray-500">
-          <p class="text-4xl mb-3"></p>
           <p>No jobs found. Try a different search.</p>
         </div>
       </div>
@@ -62,6 +60,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import JobCard from '../../components/JobCard.vue'
+import api from '../../services/api.js'
 
 const route = useRoute()
 const search = ref('')
@@ -69,7 +68,6 @@ const loading = ref(false)
 const filters = ['All', 'Full-time', 'Internship', 'Scholarship']
 const activeFilter = ref('All')
 
-// Read query param from Navbar links (?type=job etc)
 function applyQueryFilter() {
   const type = route.query.type
   if (type === 'job') activeFilter.value = 'Full-time'
@@ -78,51 +76,37 @@ function applyQueryFilter() {
   else activeFilter.value = 'All'
 }
 
-onMounted(() => applyQueryFilter())
+const jobs = ref([])
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    const res = await api.get('/listings')
+    jobs.value = res.data.map(job => ({
+      ...job,
+      type: job.type === 'job' ? 'Full-time' :
+            job.type === 'internship' ? 'Internship' :
+            job.type === 'scholarship' ? 'Scholarship' : job.type
+    }))
+  } catch (err) {
+    console.error('Failed to load listings', err)
+  } finally {
+    loading.value = false
+    applyQueryFilter()
+  }
+})
+
 watch(() => route.query, () => applyQueryFilter())
 
-// ================================
-// WEEK 1 — Fake data
-// ================================
-const jobs = ref([
-  { id: 1, title: 'Cybersecurity Intern', company: 'TM Berhad', location: 'Kuala Lumpur', type: 'Internship' },
-  { id: 2, title: 'Network Engineer', company: 'Maxis', location: 'Penang', type: 'Full-time' },
-  { id: 3, title: 'Security Analyst', company: 'CIMB', location: 'Remote', type: 'Full-time' },
-  { id: 4, title: 'IT Scholarship 2025', company: 'YTL Foundation', location: 'KL', type: 'Scholarship' },
-  { id: 5, title: 'SOC Analyst Intern', company: 'Celcom', location: 'Shah Alam', type: 'Internship' },
-  { id: 6, title: 'Cloud Security Engineer', company: 'Tenaga Nasional', location: 'KL', type: 'Full-time' },
-])
-
-// ================================
-// WEEK 2 — Uncomment when Person 4 ready
-// ================================
-// import { supabase } from '../../lib/supabase.js'
-//
-// onMounted(async () => {
-//   loading.value = true
-//   const { data, error } = await supabase
-//     .from('listings')
-//     .select('*')
-//     .eq('status', 'active')
-//   if (!error) jobs.value = data
-//   loading.value = false
-//   applyQueryFilter()
-// })
-
-// ================================
-// WEEK 2 — Uncomment when Person 5 ready
-// ================================
 const handleBookmark = async (jobId) => {
-  // const { data: { user } } = await supabase.auth.getUser()
-  // if (!user) return alert('Please login to bookmark!')
-  // const { error } = await supabase
-  //   .from('bookmarks')
-  //   .insert({ listing_id: jobId, student_id: user.id })
-  // if (!error) alert('Bookmarked! ')
-  alert('Bookmark coming soon! ')
+  try {
+    await api.post('/bookmarks', { listing_id: jobId })
+    alert('Bookmarked!')
+  } catch (err) {
+    alert('Please login to bookmark!')
+  }
 }
 
-// Search + Filter logic
 const filteredJobs = computed(() => {
   return jobs.value.filter(job => {
     const matchSearch =

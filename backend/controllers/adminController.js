@@ -12,13 +12,13 @@ const getStats = async (req, res) => {
     const [[{ newStudentsThisWeek }]]  = await pool.query(`SELECT COUNT(*) AS newStudentsThisWeek FROM users WHERE role = 'student' AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)`)
     const [[{ newEmployersThisWeek }]] = await pool.query(`SELECT COUNT(*) AS newEmployersThisWeek FROM users WHERE role = 'employer' AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)`)
 
-    const [recentUsers]    = await pool.query(`SELECT name, created_at FROM users ORDER BY created_at DESC LIMIT 5`)
+    const [recentUsers]    = await pool.query(`SELECT full_name, created_at FROM users ORDER BY created_at DESC LIMIT 5`)
     const [recentListings] = await pool.query(`SELECT title, created_at FROM listings ORDER BY created_at DESC LIMIT 5`)
 
     const activity = [
       ...recentUsers.map(u => ({
         type: 'register',
-        message: `${u.name} registered`,
+        message: `${u.full_name} registered`,
         time: new Date(u.created_at).toLocaleString()
       })),
       ...recentListings.map(l => ({
@@ -45,7 +45,7 @@ const getStats = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     const [users] = await pool.query(
-      'SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC'
+      'SELECT id, full_name, email, role, created_at FROM users ORDER BY created_at DESC'
     )
     res.json(users)
   } catch (err) {
@@ -67,7 +67,7 @@ const deleteUser = async (req, res) => {
 const getAllListings = async (req, res) => {
   try {
     const [listings] = await pool.query(
-      'SELECT id, title, company_name, type, deadline, created_at FROM listings ORDER BY created_at DESC'
+      'SELECT id, title, company, type, deadline, created_at FROM listings ORDER BY created_at DESC'
     )
     res.json(listings)
   } catch (err) {

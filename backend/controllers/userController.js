@@ -13,7 +13,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: 'Please fill in all fields' })
     }
 
-    const allowedRoles = ['student', 'employer']
+    const allowedRoles = ['student', 'employer', 'admin']
     const userRole = allowedRoles.includes(role) ? role : 'student'
 
     const existing = await User.findByEmail(email)
