@@ -56,7 +56,7 @@
           v-for="bm in sorted"
           :key="bm.id"
           class="bookmark-card"
-          :class="{ 'card--applied': hasApplied(bm.job_id) }"
+          :class="{ 'card--applied': hasApplied(bm.listing_id) }"
         >
           <!-- Remove button -->
           <button class="remove-btn" title="Remove bookmark" @click="removeBookmark(bm)">
@@ -65,57 +65,55 @@
 
           <!-- Logo -->
           <div class="card-logo">
-            <img v-if="bm.jobs?.company_logo" :src="bm.jobs.company_logo" :alt="bm.jobs?.company_name" />
-            <div v-else class="logo-fallback">{{ bm.jobs?.company_name?.charAt(0) }}</div>
+            <div class="logo-fallback">{{ bm.company_name?.charAt(0) }}</div>
           </div>
 
           <!-- Tags -->
           <div class="card-tags">
-            <span v-if="bm.jobs?.job_type" class="tag tag--type">{{ bm.jobs.job_type }}</span>
-            <span v-if="bm.jobs?.is_remote" class="tag tag--remote">Remote</span>
-            <span v-if="hasApplied(bm.job_id)" class="tag tag--applied">Applied</span>
+            <span v-if="bm.type" class="tag tag--type">{{ bm.type }}</span>
+            <span v-if="hasApplied(bm.listing_id)" class="tag tag--applied">Applied</span>
           </div>
 
           <!-- Title -->
-          <RouterLink :to="`/jobs/${bm.job_id}`" class="card-title">
-            {{ bm.jobs?.title ?? 'Listing removed' }}
+          <RouterLink :to="`/job/${bm.listing_id}`" class="card-title">
+            {{ bm.title ?? 'Listing removed' }}
           </RouterLink>
-          <p class="card-company">{{ bm.jobs?.company_name }}</p>
+          <p class="card-company">{{ bm.company_name }}</p>
 
           <!-- Meta -->
           <div class="card-meta">
-            <span v-if="bm.jobs?.location">
+            <span v-if="bm.location">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-              {{ bm.jobs.location }}
+              {{ bm.location }}
             </span>
-            <span v-if="bm.jobs?.salary_min && bm.jobs?.salary_max">
+            <span v-if="bm.salary">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9h4.5a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3H15"/></svg>
-              ${{ formatSalary(bm.jobs.salary_min) }}–${{ formatSalary(bm.jobs.salary_max) }}
+              {{ bm.salary }}
             </span>
           </div>
 
           <!-- Deadline warning -->
-          <div v-if="bm.jobs?.deadline && isUrgent(bm.jobs.deadline)" class="deadline-warn">
-            ⚡ Closes {{ formatDate(bm.jobs.deadline) }}
+          <div v-if="bm.deadline && isUrgent(bm.deadline)" class="deadline-warn">
+            ⚡ Closes {{ formatDate(bm.deadline) }}
           </div>
 
           <!-- Actions -->
           <div class="card-footer">
-            <RouterLink :to="`/jobs/${bm.job_id}`" class="btn-view">View Details</RouterLink>
+            <RouterLink :to="`/job/${bm.listing_id}`" class="btn-view">View Details</RouterLink>
             <button
               class="btn-apply"
-              :class="{ applied: hasApplied(bm.job_id) }"
-              :disabled="hasApplied(bm.job_id) || applyingId === bm.job_id"
+              :class="{ applied: hasApplied(bm.listing_id) }"
+              :disabled="hasApplied(bm.listing_id) || applyingId === bm.listing_id"
               @click="applyToJob(bm)"
             >
-              <span v-if="applyingId === bm.job_id" class="btn-spinner"></span>
-              <span v-else-if="hasApplied(bm.job_id)">✓ Applied</span>
+              <span v-if="applyingId === bm.listing_id" class="btn-spinner"></span>
+              <span v-else-if="hasApplied(bm.listing_id)">✓ Applied</span>
               <span v-else>Apply</span>
             </button>
           </div>
 
           <!-- Saved date -->
-          <p class="saved-date">Saved {{ timeAgo(bm.created_at) }}</p>
+          <p class="saved-date">Saved {{ timeAgo(bm.saved_at) }}</p>
         </div>
       </div>
     </div>
@@ -130,7 +128,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { supabase } from '@/lib/supabase'
+import api from '@/services/api.js'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
@@ -148,21 +146,24 @@ onMounted(async () => {
 
 async function fetchBookmarks() {
   loading.value = true
-  const { data } = await supabase
-    .from('bookmarks')
-    .select('*, jobs(id, title, company_name, company_logo, location, job_type, is_remote, salary_min, salary_max, deadline)')
-    .eq('student_id', auth.user.id)
-    .order('created_at', { ascending: false })
-  bookmarks.value = data ?? []
-  loading.value = false
+  try {
+    const res = await api.get('/api/bookmarks')
+    bookmarks.value = res.data ?? []
+  } catch (err) {
+    console.error(err)
+    bookmarks.value = []
+  } finally {
+    loading.value = false
+  }
 }
 
 async function fetchApplied() {
-  const { data } = await supabase
-    .from('applications')
-    .select('job_id')
-    .eq('student_id', auth.user.id)
-  appliedIds.value = new Set((data ?? []).map(a => a.job_id))
+  try {
+    const res = await api.get('/api/applications')
+    appliedIds.value = new Set((res.data ?? []).map(a => a.listing_id))
+  } catch (err) {
+    appliedIds.value = new Set()
+  }
 }
 
 const sorted = computed(() => {
@@ -170,40 +171,41 @@ const sorted = computed(() => {
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.toLowerCase()
     list = list.filter(bm =>
-      bm.jobs?.title?.toLowerCase().includes(q) ||
-      bm.jobs?.company_name?.toLowerCase().includes(q)
+      bm.title?.toLowerCase().includes(q) ||
+      bm.company_name?.toLowerCase().includes(q)
     )
   }
   return [...list].sort((a, b) => {
-    if (sortBy.value === 'saved_desc') return new Date(b.created_at) - new Date(a.created_at)
-    if (sortBy.value === 'saved_asc')  return new Date(a.created_at) - new Date(b.created_at)
-    if (sortBy.value === 'title')      return (a.jobs?.title ?? '').localeCompare(b.jobs?.title ?? '')
-    if (sortBy.value === 'company')    return (a.jobs?.company_name ?? '').localeCompare(b.jobs?.company_name ?? '')
+    if (sortBy.value === 'saved_desc') return new Date(b.saved_at) - new Date(a.saved_at)
+    if (sortBy.value === 'saved_asc')  return new Date(a.saved_at) - new Date(b.saved_at)
+    if (sortBy.value === 'title')      return (a.title ?? '').localeCompare(b.title ?? '')
+    if (sortBy.value === 'company')    return (a.company_name ?? '').localeCompare(b.company_name ?? '')
     return 0
   })
 })
 
-const hasApplied = (jobId) => appliedIds.value.has(jobId)
+const hasApplied = (listingId) => appliedIds.value.has(listingId)
 
 async function removeBookmark(bm) {
-  await supabase.from('bookmarks').delete().eq('id', bm.id)
-  bookmarks.value = bookmarks.value.filter(b => b.id !== bm.id)
-  showToast('Bookmark removed.', 'info')
+  try {
+    await api.delete(`/api/bookmarks/${bm.id}`)
+    bookmarks.value = bookmarks.value.filter(b => b.id !== bm.id)
+    showToast('Bookmark removed.', 'info')
+  } catch (err) {
+    showToast('Failed to remove bookmark.', 'error')
+  }
 }
 
 async function applyToJob(bm) {
-  if (!bm.jobs) return
-  applyingId.value = bm.job_id
-  const { error } = await supabase.from('applications').insert({
-    job_id: bm.job_id,
-    student_id: auth.user.id,
-    status: 'pending',
-  })
-  applyingId.value = null
-  if (error) showToast(error.message, 'error')
-  else {
-    appliedIds.value = new Set([...appliedIds.value, bm.job_id])
+  applyingId.value = bm.listing_id
+  try {
+    await api.post('/api/applications', { listing_id: bm.listing_id })
+    appliedIds.value = new Set([...appliedIds.value, bm.listing_id])
     showToast('Application submitted!', 'success')
+  } catch (err) {
+    showToast(err.response?.data?.message || 'Failed to apply.', 'error')
+  } finally {
+    applyingId.value = null
   }
 }
 
@@ -212,7 +214,6 @@ function showToast(message, type = 'success') {
   setTimeout(() => (toast.value.show = false), 3000)
 }
 
-const formatSalary = (n) => Number(n).toLocaleString()
 const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 const isUrgent = (d) => (new Date(d) - Date.now()) / 86400000 <= 7
 const timeAgo = (d) => {
